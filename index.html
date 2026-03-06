@@ -1,0 +1,429 @@
+import React, { useState } from 'react';
+import { 
+  BarChart3, 
+  ShieldCheck, 
+  Settings, 
+  Zap, 
+  AlertTriangle, 
+  Database, 
+  Layers, 
+  Cloud,
+  ChevronRight,
+  Info,
+  CheckCircle2,
+  XCircle,
+  Activity,
+  Lightbulb,
+  DollarSign,
+  Lock,
+  ArrowRightLeft,
+  Server,
+  Globe
+} from 'lucide-react';
+
+const App = () => {
+  const [activeTab, setActiveTab] = useState('native');
+
+  // Mapeo de clases de Tailwind para consistencia y evitar errores de JIT
+  const themeClasses = {
+    blue: {
+      bgLight: 'bg-blue-50',
+      bgMedium: 'bg-blue-50/30',
+      bgDark: 'bg-blue-900/40',
+      text: 'text-blue-500',
+      textTitle: 'text-blue-600',
+      border: 'border-blue-500',
+      borderLight: 'border-blue-100/50',
+      accent: 'bg-blue-500'
+    },
+    orange: {
+      bgLight: 'bg-orange-50',
+      bgMedium: 'bg-orange-50/30',
+      bgDark: 'bg-orange-900/40',
+      text: 'text-orange-500',
+      textTitle: 'text-orange-600',
+      border: 'border-orange-500',
+      borderLight: 'border-orange-100/50',
+      accent: 'bg-orange-500'
+    },
+    purple: {
+      bgLight: 'bg-purple-50',
+      bgMedium: 'bg-purple-50/30',
+      bgDark: 'bg-purple-900/40',
+      text: 'text-purple-500',
+      textTitle: 'text-purple-600',
+      border: 'border-purple-500',
+      borderLight: 'border-purple-100/50',
+      accent: 'bg-purple-500'
+    }
+  };
+
+  const options = {
+    native: {
+      title: "GCP Observability",
+      subtitle: "La opción integrada",
+      icon: <Cloud className="w-6 h-6 text-blue-500" />,
+      color: "blue",
+      difficulty: "Muy Baja",
+      costMetric: "Bajo (Pago por uso)",
+      standard: "Soporte OTel Nativo",
+      privacy: "Nivel Google Cloud",
+      description: "Suite de herramientas integradas directamente en la consola de Google Cloud (Logging, Monitoring, Trace).",
+      pros: [
+        "Configuración cero: Activado por defecto en Cloud Run.",
+        "Compatibilidad total con OTel: Google recomienda OTel para ingesta.",
+        "Seguridad nativa: Integración total con IAM.",
+        "Error Reporting: Agrupa excepciones automáticamente."
+      ],
+      cons: [
+        "Silos de datos: Debes saltar entre diferentes herramientas.",
+        "Costos a escala: El almacenamiento de logs puede ser caro.",
+        "Vendor Lock-in: Difícil migrar alertas fuera de GCP."
+      ],
+      complexityScore: 20,
+      costScore: 40,
+      architecture: "App -> OTel SDK -> Cloud Trace/Monitoring API"
+    },
+    signoz: {
+      title: "SigNoz / OTel",
+      subtitle: "Control Total",
+      icon: <Layers className="w-6 h-6 text-orange-500" />,
+      color: "orange",
+      difficulty: "Alta",
+      costMetric: "Medio (Infraestructura)",
+      standard: "OTel-First (Core)",
+      privacy: "Control Total (Tus VMs)",
+      description: "Alternativa Open Source basada en OpenTelemetry y ClickHouse para unificar métricas, trazas y logs.",
+      pros: [
+        "Estándar abierto: Facilita la migración futura.",
+        "OTel-Native: No hay traducciones, el dato fluye en formato OTel puro.",
+        "Panel Unificado: Correlaciona logs y trazas en una sola pantalla.",
+        "Propiedad de datos: Los datos viven en tu infraestructura."
+      ],
+      cons: [
+        "Carga operativa: Debes gestionar la base de datos y parches.",
+        "No es Serverless: Requiere instancias permanentes.",
+        "Configuración: Requiere OTel Collector intermedio en Cloud Run."
+      ],
+      complexityScore: 90,
+      costScore: 70,
+      architecture: "App -> OTel SDK -> OTel Collector -> ClickHouse -> SigNoz"
+    },
+    enterprise: {
+      title: "Datadog / SaaS",
+      subtitle: "Alto Rendimiento",
+      icon: <Zap className="w-6 h-6 text-purple-500" />,
+      color: "purple",
+      difficulty: "Baja",
+      costMetric: "Alto (Suscripción)",
+      standard: "Compatible con OTel",
+      privacy: "Datos en terceros",
+      description: "Plataformas SaaS líderes con análisis predictivo y AI para observabilidad avanzada.",
+      pros: [
+        "UI de Clase Mundial: Dashboards intuitivos y potentes.",
+        "Soporte OTel: Puedes enviar datos vía OTel o su propio SDK.",
+        "AI-Powered: Detección automática de anomalías.",
+        "Mantenimiento cero: No gestionas servidores."
+      ],
+      cons: [
+        "Costo elevado: El cobro por instancia puede ser prohibitivo.",
+        "Datos externos: La telemetría sale de tu red de Google.",
+        "Dependencia: Mayor peso en el contenedor."
+      ],
+      complexityScore: 45,
+      costScore: 100,
+      architecture: "App -> Agent/OTel -> SaaS Cloud Platform"
+    }
+  };
+
+  const keyInsights = [
+    {
+      title: "El Poder de OTel",
+      desc: "Instrumentar con OpenTelemetry te permite cambiar de proveedor simplemente cambiando la URL del destino. Es el estándar del futuro.",
+      icon: <ArrowRightLeft className="w-5 h-5 text-indigo-600" />,
+      bgColor: "bg-indigo-50",
+      borderColor: "border-indigo-100"
+    },
+    {
+      title: "Control de Costos",
+      desc: "Cloud Logging es barato hasta que dejas logs de 'DEBUG' en producción. Configura alertas de presupuesto para evitar sorpresas.",
+      icon: <DollarSign className="w-5 h-5 text-emerald-600" />,
+      bgColor: "bg-emerald-50",
+      borderColor: "border-emerald-100"
+    },
+    {
+      title: "SigNoz != Serverless",
+      desc: "SigNoz requiere infraestructura fija (ClickHouse). Evalúa si tu equipo tiene capacidad para mantener servidores o prefiere pagar un SaaS.",
+      icon: <Server className="w-5 h-5 text-orange-600" />,
+      bgColor: "bg-orange-50",
+      borderColor: "border-orange-100"
+    },
+    {
+      title: "Seguridad IAM",
+      desc: "La opción nativa de GCP no requiere gestionar llaves de API externas, reduciendo el riesgo de filtraciones de seguridad.",
+      icon: <Lock className="w-5 h-5 text-blue-600" />,
+      bgColor: "bg-blue-50",
+      borderColor: "border-blue-100"
+    },
+    {
+      title: "Multi-Cloud",
+      desc: "Si tu empresa usa AWS y GCP al mismo tiempo, las opciones SaaS (Datadog) suelen ser más eficientes para tener una vista única.",
+      icon: <Globe className="w-5 h-5 text-purple-600" />,
+      bgColor: "bg-purple-50",
+      borderColor: "border-purple-100"
+    },
+    {
+      title: "Estrategia Progresiva",
+      desc: "Empieza con GCP Native -> Instrumenta con OTel -> Migra a SigNoz o SaaS cuando la escala lo justifique. No sobre-ingenierices el día 1.",
+      icon: <Lightbulb className="w-5 h-5 text-amber-600" />,
+      bgColor: "bg-amber-50",
+      borderColor: "border-amber-100"
+    }
+  ];
+
+  const current = options[activeTab];
+  const currentTheme = themeClasses[current.color];
+
+  return (
+    <div className="min-h-screen bg-slate-50 p-4 md:p-8 font-sans text-slate-800 pb-20">
+      <div className="max-w-6xl mx-auto">
+        {/* Header */}
+        <header className="mb-8 text-center">
+          <h1 className="text-4xl font-extrabold text-slate-900 mb-2 tracking-tight">
+            Estrategia de Telemetría <span className="text-blue-600">Cloud Run</span>
+          </h1>
+          <p className="text-slate-600 max-w-2xl mx-auto italic">
+            Guía técnica para elegir y optimizar la observabilidad en Google Cloud
+          </p>
+        </header>
+
+        {/* Comparison Table Section */}
+        <section className="mb-12 overflow-hidden bg-white rounded-2xl shadow-sm border border-slate-200">
+          <div className="bg-slate-50 p-4 border-b border-slate-200 flex items-center gap-2">
+            <Activity className="w-5 h-5 text-slate-400" />
+            <h2 className="font-bold text-slate-700 uppercase tracking-wider text-sm">Resumen Comparativo</h2>
+          </div>
+          <div className="overflow-x-auto">
+            <table className="w-full text-left border-collapse">
+              <thead>
+                <tr className="bg-white">
+                  <th className="p-4 border-b border-slate-100 text-slate-400 font-medium text-xs uppercase">Característica</th>
+                  <th className="p-4 border-b border-slate-100 font-bold text-blue-600">GCP Native</th>
+                  <th className="p-4 border-b border-slate-100 font-bold text-orange-600">SigNoz (OTel)</th>
+                  <th className="p-4 border-b border-slate-100 font-bold text-purple-600">Datadog / SaaS</th>
+                </tr>
+              </thead>
+              <tbody className="text-sm">
+                <tr>
+                  <td className="p-4 border-b border-slate-50 font-semibold text-slate-600 bg-slate-50/30">Dificultad</td>
+                  <td className="p-4 border-b border-slate-50">Muy Baja</td>
+                  <td className="p-4 border-b border-slate-50 font-medium">Alta</td>
+                  <td className="p-4 border-b border-slate-50">Baja</td>
+                </tr>
+                <tr>
+                  <td className="p-4 border-b border-slate-50 font-semibold text-slate-600 bg-slate-50/30">Costo</td>
+                  <td className="p-4 border-b border-slate-50">Pago por uso</td>
+                  <td className="p-4 border-b border-slate-50">Infra Fija</td>
+                  <td className="p-4 border-b border-slate-50 font-medium text-rose-600">Suscripción Alta</td>
+                </tr>
+                <tr>
+                  <td className="p-4 border-b border-slate-50 font-semibold text-slate-600 bg-slate-50/30">Estándar OTel</td>
+                  <td className="p-4 border-b border-slate-50 font-medium text-blue-600">Soportado</td>
+                  <td className="p-4 border-b border-slate-50 font-bold text-emerald-600">Nativo (Core)</td>
+                  <td className="p-4 border-b border-slate-50 font-medium text-purple-600">Soportado</td>
+                </tr>
+                <tr>
+                  <td className="p-4 border-b border-slate-100 font-semibold text-slate-600 bg-slate-50/30">Uso Ideal</td>
+                  <td className="p-4 border-b border-slate-100">Rápido / Nativo</td>
+                  <td className="p-4 border-b border-slate-100 font-medium">Control / Privacidad</td>
+                  <td className="p-4 border-b border-slate-100 font-medium">AI / Enterprise</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        {/* Detailed View Section */}
+        <div className="flex flex-col gap-8 mb-16">
+          
+          <div className="flex flex-wrap justify-center gap-4">
+            {Object.entries(options).map(([key, opt]) => (
+              <button
+                key={key}
+                onClick={() => setActiveTab(key)}
+                className={`flex items-center gap-3 px-6 py-4 rounded-xl transition-all duration-200 border-2 ${
+                  activeTab === key 
+                  ? `bg-white ${themeClasses[opt.color].border} shadow-lg scale-105 z-10` 
+                  : 'bg-white border-transparent text-slate-500 hover:border-slate-200 hover:scale-102'
+                }`}
+              >
+                {opt.icon}
+                <div className="text-left">
+                  <div className="font-bold text-sm">{opt.title}</div>
+                  <div className="text-[10px] uppercase tracking-widest opacity-60 font-bold">Detalle Técnico</div>
+                </div>
+              </button>
+            ))}
+          </div>
+
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            <div className="lg:col-span-2 space-y-6">
+              <div className="bg-white rounded-2xl shadow-sm border border-slate-100 p-8">
+                <div className="flex items-center gap-3 mb-4">
+                  <div className={`p-2 rounded-lg ${currentTheme.bgLight}`}>
+                    {current.icon}
+                  </div>
+                  <h2 className="text-2xl font-bold">{current.title}</h2>
+                </div>
+                <p className="text-slate-600 text-lg mb-8 leading-relaxed">
+                  {current.description}
+                </p>
+
+                <div className="grid md:grid-cols-2 gap-8">
+                  <div className="space-y-4">
+                    <h3 className="flex items-center gap-2 font-bold text-emerald-600 uppercase text-xs tracking-wider">
+                      <CheckCircle2 className="w-4 h-4" /> Ventajas Técnicas
+                    </h3>
+                    <ul className="space-y-3">
+                      {current.pros.map((pro, idx) => (
+                        <li key={idx} className="flex gap-3 text-slate-700 bg-emerald-50/30 p-3 rounded-lg border border-emerald-100/50">
+                          <ChevronRight className="w-4 h-4 text-emerald-500 shrink-0 mt-0.5" />
+                          <span className="text-sm">{pro}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                  <div className="space-y-4">
+                    <h3 className="flex items-center gap-2 font-bold text-rose-600 uppercase text-xs tracking-wider">
+                      <XCircle className="w-4 h-4" /> Limitaciones
+                    </h3>
+                    <ul className="space-y-3">
+                      {current.cons.map((con, idx) => (
+                        <li key={idx} className="flex gap-3 text-slate-700 bg-rose-50/30 p-3 rounded-lg border border-rose-100/50">
+                          <ChevronRight className="w-4 h-4 text-rose-500 shrink-0 mt-0.5" />
+                          <span className="text-sm">{con}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                </div>
+              </div>
+
+              <div className="bg-slate-900 text-slate-100 rounded-2xl p-8 shadow-inner relative overflow-hidden">
+                 <div className="absolute top-0 right-0 p-4 opacity-5">
+                    <Settings className="w-40 h-40 animate-spin-slow" />
+                 </div>
+                 <h3 className="text-xs font-bold uppercase tracking-widest text-slate-400 mb-6 flex items-center gap-2">
+                   <Database className="w-4 h-4" /> Arquitectura de Flujo de Datos
+                 </h3>
+                 <div className="flex flex-col md:flex-row items-center justify-between gap-4 relative z-10">
+                    <div className="bg-slate-800 px-4 py-2 rounded border border-slate-700 w-full md:w-auto text-center text-sm">App (OTel SDK)</div>
+                    <ChevronRight className="rotate-90 md:rotate-0 text-slate-600 w-4 h-4" />
+                    <div className="bg-blue-900/40 px-4 py-2 rounded border border-blue-700 w-full md:w-auto text-center border-dashed text-sm italic">
+                      {activeTab === 'signoz' ? 'OTel Collector (VM)' : 'Direct Exporter'}
+                    </div>
+                    <ChevronRight className="rotate-90 md:rotate-0 text-slate-600 w-4 h-4" />
+                    <div className={`${currentTheme.bgDark} px-4 py-2 rounded border ${currentTheme.border} w-full md:w-auto text-center font-bold text-sm`}>
+                      {current.title}
+                    </div>
+                 </div>
+              </div>
+            </div>
+
+            <div className="space-y-6">
+              <div className="bg-white rounded-2xl shadow-sm border border-slate-100 p-6">
+                <h3 className="font-bold mb-6 flex items-center gap-2 border-b pb-4 border-slate-100 text-sm text-slate-600">
+                  <BarChart3 className="w-4 h-4" /> Métricas de Esfuerzo
+                </h3>
+                <div className="space-y-6">
+                  <div>
+                    <div className="flex justify-between text-xs mb-2">
+                      <span className="text-slate-500">Complejidad DevOps</span>
+                      <span className="font-semibold text-slate-900">{current.difficulty}</span>
+                    </div>
+                    <div className="w-full bg-slate-100 h-1.5 rounded-full overflow-hidden">
+                      <div 
+                        className={`h-full ${currentTheme.accent} transition-all duration-700`} 
+                        style={{ width: `${current.complexityScore}%` }}
+                      ></div>
+                    </div>
+                  </div>
+                  <div>
+                    <div className="flex justify-between text-xs mb-2">
+                      <span className="text-slate-500">Costo Operativo</span>
+                      <span className="font-semibold text-slate-900">{current.costMetric}</span>
+                    </div>
+                    <div className="w-full bg-slate-100 h-1.5 rounded-full overflow-hidden">
+                      <div 
+                        className={`h-full ${currentTheme.accent} transition-all duration-700`} 
+                        style={{ width: `${current.costScore}%` }}
+                      ></div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div className="bg-slate-900 rounded-2xl p-6 text-white shadow-xl">
+                 <h3 className="font-bold text-lg mb-2 flex items-center gap-2">
+                    <Zap className="w-5 h-5 text-amber-400" /> Insight Rápido
+                 </h3>
+                 <p className="text-slate-400 text-sm leading-relaxed italic">
+                    {activeTab === 'native' ? "Usa 'Log sinks' para exportar logs críticos a BigQuery y ahorrar dinero a largo plazo." : 
+                     activeTab === 'signoz' ? "ClickHouse es la clave del rendimiento de SigNoz. Si falla ClickHouse, pierdes visibilidad." :
+                     "El mayor costo de Datadog suele ser la ingesta de trazas. Configura 'sampling' desde el inicio."}
+                 </p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* New Insights Grid Section */}
+        <section className="mt-12">
+          <div className="flex items-center gap-3 mb-8">
+             <div className="h-px bg-slate-200 flex-grow"></div>
+             <h2 className="text-xl font-bold text-slate-400 uppercase tracking-[0.2em] text-center whitespace-nowrap">Claves del Éxito</h2>
+             <div className="h-px bg-slate-200 flex-grow"></div>
+          </div>
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {keyInsights.map((insight, idx) => (
+              <div 
+                key={idx} 
+                className={`${insight.bgColor} ${insight.borderColor} border-2 rounded-2xl p-6 shadow-sm hover:shadow-md transition-shadow`}
+              >
+                <div className="flex items-center gap-3 mb-4">
+                  <div className="bg-white p-2 rounded-lg shadow-sm">
+                    {insight.icon}
+                  </div>
+                  <h3 className="font-bold text-slate-900">{insight.title}</h3>
+                </div>
+                <p className="text-sm text-slate-600 leading-relaxed">
+                  {insight.desc}
+                </p>
+              </div>
+            ))}
+          </div>
+        </section>
+
+        {/* Footer */}
+        <footer className="mt-20 text-center text-slate-400 text-xs border-t border-slate-100 pt-8">
+          Guía Consolidada de Telemetría • Basado en Mejores Prácticas de GCP y OTel • 2024
+        </footer>
+      </div>
+
+      <style dangerouslySetInnerHTML={{ __html: `
+        .animate-spin-slow {
+          animation: spin 12s linear infinite;
+        }
+        @keyframes spin {
+          from { transform: rotate(0deg); }
+          to { transform: rotate(360deg); }
+        }
+        .scale-102:hover {
+          transform: scale(1.02);
+        }
+      `}} />
+    </div>
+  );
+};
+
+export default App;
