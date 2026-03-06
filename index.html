@@ -25,6 +25,7 @@
         }
         body {
             background-color: #eaeff1;
+            font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
         }
     </style>
 </head>
@@ -34,10 +35,12 @@
     <script type="text/babel">
         const { useState, useEffect } = React;
 
-        // Componente de icono simplificado para usar Lucide sin imports
+        // Componente de icono para Lucide
         const Icon = ({ name, className = "w-6 h-6" }) => {
             useEffect(() => {
-                lucide.createIcons();
+                if (window.lucide) {
+                    window.lucide.createIcons();
+                }
             }, [name]);
             return <i data-lucide={name} className={className}></i>;
         };
@@ -48,23 +51,32 @@
             const themeClasses = {
                 blue: {
                     bgLight: 'bg-blue-50',
+                    bgMedium: 'bg-blue-50/30',
                     bgDark: 'bg-blue-900/40',
                     text: 'text-blue-500',
+                    textTitle: 'text-blue-600',
                     border: 'border-blue-500',
+                    borderLight: 'border-blue-100/50',
                     accent: 'bg-blue-500'
                 },
                 orange: {
                     bgLight: 'bg-orange-50',
+                    bgMedium: 'bg-orange-50/30',
                     bgDark: 'bg-orange-900/40',
                     text: 'text-orange-500',
+                    textTitle: 'text-orange-600',
                     border: 'border-orange-500',
+                    borderLight: 'border-orange-100/50',
                     accent: 'bg-orange-500'
                 },
                 purple: {
                     bgLight: 'bg-purple-50',
+                    bgMedium: 'bg-purple-50/30',
                     bgDark: 'bg-purple-900/40',
                     text: 'text-purple-500',
+                    textTitle: 'text-purple-600',
                     border: 'border-purple-500',
+                    borderLight: 'border-purple-100/50',
                     accent: 'bg-purple-500'
                 }
             };
@@ -77,13 +89,17 @@
                     color: "blue",
                     difficulty: "Muy Baja",
                     costMetric: "Bajo (Pago por uso)",
+                    standard: "Soporte OTel Nativo",
+                    privacy: "Nivel Google Cloud",
                     description: "Suite de herramientas integradas directamente en la consola de Google Cloud (Logging, Monitoring, Trace).",
                     pros: [
+                        "Configuración cero: Activado por defecto en Cloud Run.",
                         "Compatibilidad total con OTel: Google recomienda OTel para ingesta.",
                         "Seguridad nativa: Integración total con IAM.",
                         "Error Reporting: Agrupa excepciones automáticamente."
                     ],
                     cons: [
+                        "Silos de datos: Debes saltar entre diferentes herramientas.",
                         "Costos a escala: El almacenamiento de logs puede ser caro.",
                         "Vendor Lock-in: Difícil migrar alertas fuera de GCP."
                     ],
@@ -98,14 +114,18 @@
                     color: "orange",
                     difficulty: "Alta",
                     costMetric: "Medio (Infraestructura)",
+                    standard: "OTel-First (Core)",
+                    privacy: "Control Total (Tus VMs)",
                     description: "Alternativa Open Source basada en OpenTelemetry y ClickHouse para unificar métricas, trazas y logs.",
                     pros: [
                         "Estándar abierto: Facilita la migración futura.",
                         "OTel-Native: Sin traducciones, formato OTel puro.",
+                        "Panel Unificado: Correlaciona logs y trazas en una sola pantalla.",
                         "Propiedad de datos: Los datos viven en tu infraestructura."
                     ],
                     cons: [
                         "Carga operativa: Debes gestionar la base de datos.",
+                        "No es Serverless: Requiere instancias permanentes.",
                         "Configuración: Requiere OTel Collector intermedio."
                     ],
                     complexityScore: 90,
@@ -119,15 +139,19 @@
                     color: "purple",
                     difficulty: "Baja",
                     costMetric: "Alto (Suscripción)",
+                    standard: "Compatible con OTel",
+                    privacy: "Datos en terceros",
                     description: "Plataformas SaaS líderes con análisis predictivo y AI para observabilidad avanzada.",
                     pros: [
                         "UI de Clase Mundial: Dashboards intuitivos.",
                         "AI-Powered: Detección automática de anomalías.",
+                        "Soporte Multi-cloud: Ideal para entornos GCP/AWS.",
                         "Mantenimiento cero: No gestionas servidores."
                     ],
                     cons: [
                         "Costo elevado: El cobro por instancia es caro.",
-                        "Datos externos: La telemetría sale de tu red."
+                        "Datos externos: La telemetría sale de tu red.",
+                        "Dependencia: Mayor peso en el contenedor."
                     ],
                     complexityScore: 45,
                     costScore: 100,
@@ -137,8 +161,16 @@
 
             const keyInsights = [
                 {
+                    title: "El Poder de OTel",
+                    desc: "Instrumentar con OpenTelemetry te permite cambiar de proveedor simplemente cambiando la URL del destino.",
+                    icon: "arrow-right-left",
+                    bgColor: "bg-indigo-50",
+                    borderColor: "border-indigo-100",
+                    iconColor: "text-indigo-600"
+                },
+                {
                     title: "Control de Costos",
-                    desc: "Cloud Logging es barato hasta que dejas logs de 'DEBUG' en producción. Configura alertas de presupuesto.",
+                    desc: "Cloud Logging es barato hasta que dejas logs de 'DEBUG' en producción. Configura alertas.",
                     icon: "dollar-sign",
                     bgColor: "bg-emerald-50",
                     borderColor: "border-emerald-100",
@@ -146,7 +178,7 @@
                 },
                 {
                     title: "SigNoz != Serverless",
-                    desc: "SigNoz requiere infraestructura fija (ClickHouse). Evalúa si tu equipo tiene capacidad de mantenimiento.",
+                    desc: "SigNoz requiere infraestructura fija. Evalúa si tu equipo tiene capacidad de mantenimiento.",
                     icon: "server",
                     bgColor: "bg-orange-50",
                     borderColor: "border-orange-100",
@@ -154,7 +186,7 @@
                 },
                 {
                     title: "Seguridad IAM",
-                    desc: "La opción nativa de GCP no requiere gestionar llaves de API externas, reduciendo riesgos de seguridad.",
+                    desc: "La opción nativa no requiere gestionar llaves externas, reduciendo riesgos de seguridad.",
                     icon: "lock",
                     bgColor: "bg-blue-50",
                     borderColor: "border-blue-100",
@@ -162,11 +194,19 @@
                 },
                 {
                     title: "Multi-Cloud",
-                    desc: "Si usas AWS y GCP al mismo tiempo, las opciones SaaS suelen ser más eficientes para una vista única.",
+                    desc: "Si usas AWS y GCP, las opciones SaaS suelen ser más eficientes para una vista única.",
                     icon: "globe",
                     bgColor: "bg-purple-50",
                     borderColor: "border-purple-100",
                     iconColor: "text-purple-600"
+                },
+                {
+                    title: "Estrategia Progresiva",
+                    desc: "Empieza nativo, instrumenta con OTel y migra cuando la escala lo justifique. No sobre-ingenierices.",
+                    icon: "lightbulb",
+                    bgColor: "bg-amber-50",
+                    borderColor: "border-amber-100",
+                    iconColor: "text-amber-600"
                 }
             ];
 
@@ -185,6 +225,7 @@
                             </p>
                         </header>
 
+                        {/* Tabla Comparativa Completa */}
                         <section className="mb-12 overflow-hidden bg-white rounded-2xl shadow-sm border border-slate-200">
                             <div className="bg-slate-50 p-4 border-b border-slate-200 flex items-center gap-2">
                                 <Icon name="activity" className="w-5 h-5 text-slate-400" />
@@ -213,12 +254,24 @@
                                             <td className="p-4 border-b border-slate-50">Infra Fija</td>
                                             <td className="p-4 border-b border-slate-50 font-medium text-rose-600">Suscripción Alta</td>
                                         </tr>
+                                        <tr>
+                                            <td className="p-4 border-b border-slate-50 font-semibold text-slate-600 bg-slate-50/30">Estándar OTel</td>
+                                            <td className="p-4 border-b border-slate-50">Soportado</td>
+                                            <td className="p-4 border-b border-slate-50 font-bold text-emerald-600">Nativo (Core)</td>
+                                            <td className="p-4 border-b border-slate-50">Soportado</td>
+                                        </tr>
+                                        <tr>
+                                            <td className="p-4 border-b border-slate-50 font-semibold text-slate-600 bg-slate-50/30">Privacidad</td>
+                                            <td className="p-4 border-b border-slate-50 italic">Google Cloud</td>
+                                            <td className="p-4 border-b border-slate-50 font-medium">Control Total</td>
+                                            <td className="p-4 border-b border-slate-50 italic text-slate-400">Datos en terceros</td>
+                                        </tr>
                                     </tbody>
                                 </table>
                             </div>
                         </section>
 
-                        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+                        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 mb-16">
                             <div className="lg:col-span-8 space-y-6">
                                 <div className="flex flex-wrap gap-3 mb-6">
                                     {Object.entries(options).map(([key, opt]) => (
@@ -246,11 +299,11 @@
                                     </h2>
                                     <div className="grid md:grid-cols-2 gap-8 text-xs">
                                         <div className="space-y-4">
-                                            <h3 className="flex items-center gap-2 font-bold text-emerald-600 uppercase tracking-widest text-[10px]">Ventajas</h3>
+                                            <h3 className="flex items-center gap-2 font-bold text-emerald-600 uppercase tracking-widest text-[10px]">Ventajas Técnicas</h3>
                                             <div className="space-y-2">
                                                 {current.pros.map((pro, idx) => (
                                                     <div key={idx} className="flex gap-3 text-slate-700 bg-emerald-50/40 p-3 rounded-xl border border-emerald-100/30">
-                                                        <Icon name="chevron-right" className="w-4 h-4 text-emerald-500 shrink-0" />
+                                                        <Icon name="check-circle-2" className="w-4 h-4 text-emerald-500 shrink-0" />
                                                         <span>{pro}</span>
                                                     </div>
                                                 ))}
@@ -261,7 +314,7 @@
                                             <div className="space-y-2">
                                                 {current.cons.map((con, idx) => (
                                                     <div key={idx} className="flex gap-3 text-slate-700 bg-rose-50/40 p-3 rounded-xl border border-rose-100/30">
-                                                        <Icon name="chevron-right" className="w-4 h-4 text-rose-500 shrink-0" />
+                                                        <Icon name="x-circle" className="w-4 h-4 text-rose-500 shrink-0" />
                                                         <span>{con}</span>
                                                     </div>
                                                 ))}
@@ -286,50 +339,87 @@
                                             {activeTab === 'signoz' ? 'OTel Collector' : 'OTel Exporter'}
                                         </div>
                                         <Icon name="chevron-right" className="rotate-90 md:rotate-0 text-slate-600 w-5 h-5" />
-                                        <div className="bg-gradient-to-br from-slate-700 to-slate-800 px-6 py-4 rounded-lg border border-blue-500/50 w-full md:w-56 text-center shadow-xl">
+                                        <div className={`bg-gradient-to-br from-slate-700 to-slate-800 px-6 py-4 rounded-lg border border-blue-500/50 w-full md:w-56 text-center shadow-xl`}>
                                             {current.backendLabel}
                                         </div>
                                     </div>
                                 </div>
                             </div>
 
+                            {/* Sidebar Area con Barras de Esfuerzo */}
                             <div className="lg:col-span-4 space-y-6">
-                                <div className="relative group overflow-hidden bg-gradient-to-br from-indigo-600 to-violet-700 rounded-2xl p-8 text-white shadow-xl border border-white/10 h-full max-h-[420px] flex flex-col justify-between">
-                                    <div className="absolute -bottom-4 -right-4 opacity-20 transform group-hover:scale-110 transition-transform">
-                                        <Icon name="zap" className="w-40 h-40" />
-                                    </div>
-                                    <div className="relative z-10">
-                                        <div className="flex items-center gap-2 mb-6">
-                                            <span className="text-2xl">💡</span>
-                                            <h3 className="text-xl font-extrabold tracking-tight">El Poder de OTel</h3>
+                                <div className="bg-white rounded-2xl shadow-sm border border-slate-100 p-6">
+                                    <h3 className="font-bold mb-6 flex items-center gap-2 border-b pb-4 border-slate-100 text-sm text-slate-600">
+                                        <Icon name="bar-chart-3" className="w-4 h-4" /> Evaluación de Esfuerzo
+                                    </h3>
+                                    <div className="space-y-6">
+                                        <div>
+                                            <div className="flex justify-between text-xs mb-2">
+                                                <span className="text-slate-500">Complejidad DevOps</span>
+                                                <span className="font-semibold">{current.difficulty}</span>
+                                            </div>
+                                            <div className="w-full bg-slate-100 h-1.5 rounded-full overflow-hidden">
+                                                <div className={`h-full ${currentTheme.accent} transition-all duration-700 ease-out`} style={{ width: `${current.complexityScore}%` }}></div>
+                                            </div>
                                         </div>
-                                        <p className="text-indigo-50/90 text-sm leading-relaxed">
-                                            Instrumentar con <span className="font-bold text-white">OpenTelemetry</span> te permite cambiar de proveedor de telemetría sin tocar una sola línea de código.
-                                        </p>
+                                        <div>
+                                            <div className="flex justify-between text-xs mb-2">
+                                                <span className="text-slate-500">Costo Operativo</span>
+                                                <span className="font-semibold">{current.costMetric}</span>
+                                            </div>
+                                            <div className="w-full bg-slate-100 h-1.5 rounded-full overflow-hidden">
+                                                <div className={`h-full ${currentTheme.accent} transition-all duration-700 ease-out`} style={{ width: `${current.costScore}%` }}></div>
+                                            </div>
+                                        </div>
                                     </div>
-                                    <button className="w-full bg-white/20 hover:bg-white/30 py-3 rounded-xl text-xs font-bold border border-white/20 backdrop-blur-sm mt-8">
-                                        Guía de Migración OTel
-                                    </button>
                                 </div>
 
-                                <div className="grid grid-cols-1 gap-4">
-                                    {keyInsights.map((insight, idx) => (
-                                        <div key={idx} className="bg-white p-5 rounded-2xl border border-slate-100 shadow-sm flex gap-4 items-start">
-                                            <div className={`p-2 rounded-lg ${insight.bgColor}`}>
-                                                <Icon name={insight.icon} className={`w-4 h-4 ${insight.iconColor}`} />
-                                            </div>
-                                            <div>
-                                                <h4 className="font-bold text-xs mb-1">{insight.title}</h4>
-                                                <p className="text-[10px] text-slate-500 leading-tight">{insight.desc}</p>
-                                            </div>
-                                        </div>
-                                    ))}
+                                <div className="relative group overflow-hidden bg-gradient-to-br from-indigo-600 to-violet-700 rounded-2xl p-6 text-white shadow-xl border border-white/10 h-64 flex flex-col justify-between">
+                                    <div className="absolute -bottom-4 -right-4 opacity-20 transform group-hover:scale-110 transition-transform">
+                                        <Icon name="zap" className="w-32 h-32" />
+                                    </div>
+                                    <div className="relative z-10">
+                                        <h3 className="text-lg font-extrabold tracking-tight flex items-center gap-2 mb-4">
+                                            <Icon name="lightbulb" className="w-5 h-5 text-amber-300" /> El Poder de OTel
+                                        </h3>
+                                        <p className="text-indigo-50/90 text-xs leading-relaxed">
+                                            Instrumentar con <span className="font-bold">OpenTelemetry</span> permite cambiar de backend sin tocar el código.
+                                        </p>
+                                    </div>
+                                    <button className="w-full bg-white/20 hover:bg-white/30 py-2 rounded-xl text-xs font-bold border border-white/20 backdrop-blur-sm relative z-10 transition-all">
+                                        Guía OTel
+                                    </button>
                                 </div>
                             </div>
                         </div>
 
+                        {/* Claves del Éxito - Tarjetas Restauradas */}
+                        <section className="mt-12">
+                            <div className="flex items-center gap-3 mb-8">
+                                <div className="h-px bg-slate-200 flex-grow"></div>
+                                <h2 className="text-sm font-bold text-slate-400 uppercase tracking-[0.2em] whitespace-nowrap">Claves del Éxito</h2>
+                                <div className="h-px bg-slate-200 flex-grow"></div>
+                            </div>
+                            
+                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                                {keyInsights.map((insight, idx) => (
+                                    <div key={idx} className={`${insight.bgColor} ${insight.borderColor} border-2 rounded-2xl p-5 shadow-sm hover:shadow-md transition-shadow`}>
+                                        <div className="flex items-center gap-3 mb-3">
+                                            <div className="bg-white p-2 rounded-lg shadow-sm">
+                                                <Icon name={insight.icon} className={`w-4 h-4 ${insight.iconColor}`} />
+                                            </div>
+                                            <h3 className="font-bold text-slate-900 text-sm">{insight.title}</h3>
+                                        </div>
+                                        <p className="text-[11px] text-slate-600 leading-relaxed">
+                                            {insight.desc}
+                                        </p>
+                                    </div>
+                                ))}
+                            </div>
+                        </section>
+
                         <footer className="mt-20 text-center text-slate-400 text-[10px] border-t border-slate-200/50 pt-8 uppercase tracking-widest">
-                            Guía Técnica de Observabilidad para Arquitecturas Modernas en GCP • 2024
+                            Guía Técnica de Observabilidad • 2024
                         </footer>
                     </div>
                 </div>
