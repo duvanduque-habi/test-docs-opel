@@ -21,10 +21,18 @@ import {
   Globe
 } from 'lucide-react';
 
+/**
+ * DEPLOYMENT NOTE FOR GITHUB PAGES:
+ * 1. If hosting at https://<username>.github.io/<repo-name>/, 
+ * ensure your bundler (Vite/Webpack) has the base path set to '/<repo-name>/'.
+ * 2. This app uses internal state for navigation, which is perfect for static 
+ * hosting as it avoids 404 errors on page refresh.
+ */
+
 const App = () => {
   const [activeTab, setActiveTab] = useState('native');
 
-  // Mapeo de clases de Tailwind para consistencia y evitar errores de JIT
+  // Tailwind classes mapping to avoid JIT interpolation issues
   const themeClasses = {
     blue: {
       bgLight: 'bg-blue-50',
@@ -201,7 +209,7 @@ const App = () => {
         <section className="mb-12 overflow-hidden bg-white rounded-2xl shadow-sm border border-slate-200">
           <div className="bg-slate-50 p-4 border-b border-slate-200 flex items-center gap-2">
             <Activity className="w-5 h-5 text-slate-400" />
-            <h2 className="font-bold text-slate-700 uppercase tracking-wider text-sm">Resumen Comparativo</h2>
+            <h2 className="font-bold text-slate-700 uppercase tracking-wider text-sm text-center md:text-left">Resumen Comparativo</h2>
           </div>
           <div className="overflow-x-auto">
             <table className="w-full text-left border-collapse">
@@ -376,7 +384,7 @@ const App = () => {
           </div>
         </div>
 
-        {/* New Insights Grid Section */}
+        {/* Insights Grid Section */}
         <section className="mt-12">
           <div className="flex items-center gap-3 mb-8">
              <div className="h-px bg-slate-200 flex-grow"></div>
@@ -406,7 +414,7 @@ const App = () => {
 
         {/* Footer */}
         <footer className="mt-20 text-center text-slate-400 text-xs border-t border-slate-100 pt-8">
-          Guía Consolidada de Telemetría • Basado en Mejores Prácticas de GCP y OTel • 2024
+          Guía Técnica de Observabilidad para Arquitecturas Modernas en GCP • 2024
         </footer>
       </div>
 
